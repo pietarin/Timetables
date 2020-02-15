@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import '../node_modules/uikit/'
-import { Query } from 'react-apollo'
-import ApolloClient, { gql } from 'apollo-boost';
-import { ApolloProvider } from 'react-apollo'
+import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks'
 import axios from 'axios';
 
@@ -22,26 +20,64 @@ const nearestStops = gql`
     }
   }  
 `
-const fromEficodeToAddress = "Pohjoinen Rautatienkatu 25";
+const fromAddressToEficode = gql`
+query RouteToEficode($addressForRoute: String!){
+  plan(
+    from: $addressForRoute,
+    to: "lat:60.169390, lon:24.925750",
+    numItineraries: 1,
+  ) {
+    itineraries {
+      legs {
+        startTime
+        endTime
+        mode
+        duration
+        realTime
+        distance
+        transitLeg
+      }
+    }
+  }
+}
+`
+
+const fromEficodeToAddress = gql`
+query RouteToAddress($addressForRoute: String!){
+  plan(
+    from: "lat:60.169390, lon:24.925750",
+    to: $addressForRoute,
+    numItineraries: 1,
+  ) {
+    itineraries {
+      legs {
+        startTime
+        endTime
+        mode
+        duration
+        realTime
+        distance
+        transitLeg
+      }
+    }
+  }
+}
+`
 
 function Timetables() {
-
-  const { loading, error, data } = useQuery(nearestStops)
-
-  console.log(data);
-
-
+  const [addresses, setAddresses] = useState([]);
+  const [addressCoordinates, setAddressCoordinates] = useState([]);
+  const { loading, error, data } = useQuery(nearestStops) 
 
   document.title = 'Timetables';
   const [search, setSearch] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(search)
-    axios.get(`http://api.digitransit.fi/geocoding/v1/search?text=${search}`)
+    axios.get(`http://api.digitransit.fi/geocoding/v1/search?text=${search}&boundary.circle.lat=60.169390&boundary.circle.lon=24.925750&boundary.circle.radius=100`)
       .then(res => {
-        console.log(res);
-
+        setAddressCoordinates(res.data.features.map((feature) => `{lat:${feature.geometry.coordinates[1]}, lon:${feature.geometry.coordinates[0]}}`))
+        setAddresses(res.data.features);
       })
   }
 
@@ -54,6 +90,9 @@ function Timetables() {
 
     setSearch(e.target.value);
   }
+
+  console.log(addressCoordinates);
+
 
   return (
     <div>
@@ -70,6 +109,8 @@ function Timetables() {
         <ToFromButtons handleClick={handleClick} />
         <TimeSettings />
       </div>
+      {addresses.map((address) => <div key={address.properties.label}>{address.properties.label}</div>
+      )}
     </div>
   );
 }
