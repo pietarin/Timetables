@@ -5,21 +5,6 @@ import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks'
 import axios from 'axios';
 
-const nearestStops = gql`
-{
-    stopsByRadius(lat:60.169390, lon:24.925750, radius:500) {
-      edges {
-        node {
-          stop {
-            gtfsId
-            name
-          }
-          distance
-        }
-      }
-    }
-  }  
-`
 const fromAddressToEficode = gql`
 query RouteToEficode($addressForRoute: String!){
   plan(
@@ -73,7 +58,8 @@ query RouteToAddress($addressForRoute: String!){
 function Timetables() {
   const [addresses, setAddresses] = useState([]);
   const [addressCoordinates, setAddressCoordinates] = useState([]);
-  const { loading, error, data } = useQuery(nearestStops) 
+  const [toFromEficode, setToFromEficode] = useState(true);
+  const { loading, error, data } = useQuery(fromAddressToEficode) 
 
   document.title = 'Timetables';
   const [search, setSearch] = useState("");
@@ -87,18 +73,11 @@ function Timetables() {
       })
   }
 
-  const handleClick = (e) => {
-    e.preventDefault();
-  }
-
   const handleSearchChange = (e) => {
-    console.log(e);
-
     setSearch(e.target.value);
   }
 
   console.log(addressCoordinates);
-
 
   return (
     <div className="App">
@@ -112,9 +91,19 @@ function Timetables() {
       </h5>
       <div>
         <RouteBars handleSubmit={handleSubmit} handleSearchChange={handleSearchChange} />
-        <ToFromButtons handleClick={handleClick} />
+        <button onClick={() => setToFromEficode(!toFromEficode)}> 
+        {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
+        </button>
       </div>
-      {addresses.map((address) => <div key={address.properties.label}>
+      <AddressDisplay addresses={addresses} />
+    </div>
+  );
+}
+
+function AddressDisplay(props) {
+  return (
+    <div>
+      {props.addresses.map((address) => <div key={address.properties.label}>
       <a
           className="App-link"
           href="#"
@@ -126,7 +115,15 @@ function Timetables() {
       </div>
       )}
     </div>
-  );
+  )
+}
+
+function RouteDisplay(props) {
+  return (
+    <div>
+
+    </div>
+  )
 }
 
 function RouteBars(props) {
@@ -146,33 +143,9 @@ function RouteBars(props) {
             size="25" placeholder="Osoite" onChange={props.handleSearchChange} />
           <input type="submit" value="Hae aikatauluja" />
         </div>
-
       </form>
     </div>
   );
 }
-
-function ToFromButtons(props) {
-  return (
-    <div>
-      <button handleClick={props.handleClick}>Valitsemasi kohde -> Eficode</button>
-      <br></br>
-      <button handleClick={props.handleClick}>Eficode -> valitsemasi kohde</button>
-    </div>
-  )
-}
-/*
-function TimeSettings() {
-  return (
-    <div>
-      <p>
-        Syötä lähtöaika alle:
-    </p>
-      <input type="text" id="time" name="time" required minlength="4" maxlength="4" size="4"
-        value={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} />
-    </div>
-  )
-}
-*/
 
 export default Timetables;
