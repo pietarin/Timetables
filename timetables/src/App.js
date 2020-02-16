@@ -86,11 +86,11 @@ function Timetables() {
         <br></br>
         tai toimstolta valitseemasi osoitteeseen!
       </h1>
-      <h5>
-        Valitse, haluatko mennä Eficoden toimistolle, vai lähteä sieltä.
-      </h5>
       <div>
         <RouteBars handleSubmit={handleSubmit} handleSearchChange={handleSearchChange} />
+        <h5>
+        Valitse, haluatko mennä Eficoden toimistolle, vai lähteä sieltä.
+        </h5>
         <button onClick={() => setToFromEficode(!toFromEficode)}> 
         {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
         </button>
@@ -133,10 +133,9 @@ function RouteBars(props) {
         <div>
           <label htmlFor="routeFrom">Eficoden toimisto:</label>
           <br></br>
-          <input id="routeFrom" type="text" name="routeFrom"
-            value="Pohjoinen Rautatienkatu 25" size="25" />
-          <input type="submit" value="Hae aikatauluja" disabled />
-          <br></br>
+          <h3>
+          Pohjoinen Rautatienkatu 25
+          </h3>
           <label htmlFor="routeTo">Hae aikatauluja:</label>
           <br></br>
           <input id="routeTo" type="text" required name="routeTo"
