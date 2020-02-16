@@ -33,9 +33,12 @@ query RouteToEficode($addressForRoute: String!){
         endTime
         mode
         duration
-        realTime
         distance
         transitLeg
+      } fares {
+        type
+        cents
+        currency
       }
     }
   }
@@ -55,9 +58,12 @@ query RouteToAddress($addressForRoute: String!){
         endTime
         mode
         duration
-        realTime
         distance
         transitLeg
+      } fares {
+        type
+        cents
+        currency
       }
     }
   }
@@ -95,8 +101,8 @@ function Timetables() {
 
 
   return (
-    <div>
-      <h1>
+    <div className="App">
+      <h1 className="App-header">
         Tarkasta julkisen liikenteen aikataulut toimistolle
         <br></br>
         tai toimstolta valitseemasi osoitteeseen!
@@ -107,9 +113,17 @@ function Timetables() {
       <div>
         <RouteBars handleSubmit={handleSubmit} handleSearchChange={handleSearchChange} />
         <ToFromButtons handleClick={handleClick} />
-        <TimeSettings />
       </div>
-      {addresses.map((address) => <div key={address.properties.label}>{address.properties.label}</div>
+      {addresses.map((address) => <div key={address.properties.label}>
+      <a
+          className="App-link"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {address.properties.label}
+        </a>
+      </div>
       )}
     </div>
   );
@@ -147,7 +161,7 @@ function ToFromButtons(props) {
     </div>
   )
 }
-
+/*
 function TimeSettings() {
   return (
     <div>
@@ -159,5 +173,6 @@ function TimeSettings() {
     </div>
   )
 }
+*/
 
 export default Timetables;
