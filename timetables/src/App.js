@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import './App.css';
-import '../node_modules/uikit/'
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks'
+import { Query } from 'react-apollo'
 import axios from 'axios';
 
-const fromAddressToEficode = gql`
-query RouteToEficode($addressForRoute: String!){
+
+const ADDRESS_TO_EFICODE = gql`
+query RouteToEficode($latitude: number!, $longitude: number!){
   plan(
-    from: $addressForRoute,
-    to: "lat:60.169390, lon:24.925750",
-    numItineraries: 1,
+    from: {lat: $latitude, lon: $longitude}
+    to: {lat: 60.169390, lon: 24.925750}
+    numItineraries: 1
   ) {
     itineraries {
       legs {
@@ -59,16 +60,16 @@ function Timetables() {
   const [addresses, setAddresses] = useState([]);
   const [addressCoordinates, setAddressCoordinates] = useState([]);
   const [toFromEficode, setToFromEficode] = useState(true);
-  const { loading, error, data } = useQuery(fromAddressToEficode) 
+  const [search, setSearch] = useState("");
 
   document.title = 'Timetables';
-  const [search, setSearch] = useState("");
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     axios.get(`http://api.digitransit.fi/geocoding/v1/search?text=${search}&boundary.circle.lat=60.169390&boundary.circle.lon=24.925750&boundary.circle.radius=100`)
       .then(res => {
-        setAddressCoordinates(res.data.features.map((feature) => `{lat:${feature.geometry.coordinates[1]}, lon:${feature.geometry.coordinates[0]}}`))
+        setAddressCoordinates(res.data.features.map((feature) => ({lat: feature.geometry.coordinates[1], lon: feature.geometry.coordinates[0]})));
         setAddresses(res.data.features);
       })
   }
@@ -96,6 +97,7 @@ function Timetables() {
         </button>
       </div>
       <AddressDisplay addresses={addresses} />
+      <RouteDisplay addressCoordinates={addressCoordinates[0]} />
     </div>
   );
 }
@@ -118,11 +120,21 @@ function AddressDisplay(props) {
   )
 }
 
-function RouteDisplay(props) {
-  return (
+function RouteDisplay(props) {
+  const { loading, error, data } = useQuery(ADDRESS_TO_EFICODE, {
+    variables: props.addressCoordinates ,
+  });
+  console.log(props.addressCoordinates)
+  if (loading) return <p>Loading ...</p>;
+  if (error) return (
     <div>
-
+    {console.log(error)}
     </div>
+    );
+  return (
+  <div>
+    {data}
+  </div>
   )
 }
 
@@ -131,14 +143,14 @@ function RouteBars(props) {
     <div>
       <form onSubmit={props.handleSubmit}>
         <div>
-          <label htmlFor="routeFrom">Eficoden toimisto:</label>
+          <label>Eficoden toimisto:</label>
           <br></br>
           <h3>
           Pohjoinen Rautatienkatu 25
           </h3>
-          <label htmlFor="routeTo">Hae aikatauluja:</label>
+          <label htmlFor="routeToFrom">Hae aikatauluja:</label>
           <br></br>
-          <input id="routeTo" type="text" required name="routeTo"
+          <input id="routeToFrom" type="text" required name="routeToFrom"
             size="25" placeholder="Osoite" onChange={props.handleSearchChange} />
           <input type="submit" value="Hae aikatauluja" />
         </div>
