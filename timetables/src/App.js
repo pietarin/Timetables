@@ -58,8 +58,8 @@ query RouteToAddress( $lat: Float, $lon: Float){
 function Timetables() {
   const [addresses, setAddresses] = useState([]);
   const [addressCoordinates, setAddressCoordinates] = useState([]);
-  const [toFromEficode, setToFromEficode] = useState(true);
   const [search, setSearch] = useState("");
+  const [display, setDisplay] = useState(false);
 
   document.title = 'Timetables';
   
@@ -77,6 +77,11 @@ function Timetables() {
     setSearch(e.target.value);
   }
 
+  function handleClick(newValue) {
+    setDisplay(!display);
+    console.log(display)
+	}
+
   console.log(addressCoordinates);
 
   return (
@@ -88,28 +93,24 @@ function Timetables() {
       </h1>
       <div>
         <RouteBars handleSubmit={handleSubmit} handleSearchChange={handleSearchChange} />
-        <h5>
-        Valitse, haluatko mennä Eficoden toimistolle, vai lähteä sieltä.
-        </h5>
-        <button onClick={() => setToFromEficode(!toFromEficode)}> 
-        {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
-        </button>
       </div>
-      <AddressDisplay addresses={addresses} />
-      <RouteDisplay addressCoordinates={addressCoordinates} />
+      {display ? <RouteDisplay addressCoordinates={addressCoordinates} /> : <AddressDisplay setDisplay={setDisplay} addresses={addresses} /> }
     </div>
   );
 }
 
 function AddressDisplay(props) {
+  function handleClick(event) {
+    props.onClick(event.target.setDisplay);
+  }
   return (
     <div>
       {props.addresses.map((address) => <div key={address.properties.label}>
       <a
           className="App-link"
           href="#"
-          target="_blank"
           rel="noopener noreferrer"
+          onClick={handleClick}
         >
           {address.properties.label}
         </a>
@@ -123,15 +124,22 @@ function RouteDisplay(props) {
   const { loading, error, data } = useQuery(ADDRESS_TO_EFICODE, {
     variables: props.addressCoordinates[0] ,
   });
+  const [toFromEficode, setToFromEficode] = useState(true);
   console.log(props.addressCoordinates[0])
   if (loading) return <p>Loading ...</p>;
   if (error) return (
     <div>
-    {console.log(error)}
+      {console.log(error)}
     </div>
     );
   return (
   <div>
+    <h5>
+      Valitse, haluatko mennä Eficoden toimistolle, vai lähteä sieltä.
+    </h5>
+    <button onClick={() => setToFromEficode(!toFromEficode)}> 
+      {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
+    </button>
     {data.plan.itineraries.slice(0).map((slice) => <div key={slice.legs[0].endTime}>
         {data.plan.itineraries[0].legs.map((leg) => <div key={leg.endTime}>
           {new Date(leg.startTime).toLocaleTimeString()}{' ' + leg.mode + ' '}{(leg.distance/1000).toFixed(2) + 'km '}{new Date(leg.endTime).toLocaleTimeString()}<br></br>
