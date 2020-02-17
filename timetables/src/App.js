@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import './App.css';
 import { gql } from 'apollo-boost';
 import { useQuery } from '@apollo/react-hooks'
-import { Query } from 'react-apollo'
 import axios from 'axios';
 
 
 const ADDRESS_TO_EFICODE = gql`
-query RouteToEficode($latitude: number!, $longitude: number!){
+query RouteToEficode( $lat: Float!, $lon: Float!){
   plan(
-    from: {lat: $latitude, lon: $longitude}
+    from: {lat: $lat, lon: $lon}
     to: {lat: 60.169390, lon: 24.925750}
-    numItineraries: 1
+    numItineraries: 3
   ) {
     itineraries {
       legs {
@@ -31,12 +30,12 @@ query RouteToEficode($latitude: number!, $longitude: number!){
 }
 `
 
-const fromEficodeToAddress = gql`
-query RouteToAddress($addressForRoute: String!){
+const EFICODE_TO_ADDRESS = gql`
+query RouteToAddress( $lat: Float, $lon: Float){
   plan(
-    from: "lat:60.169390, lon:24.925750",
-    to: $addressForRoute,
-    numItineraries: 1,
+    from: "lat:60.169390, lon:24.925750"
+    to: {lat: $latitude, lon: $longitude}
+    numItineraries: 3
   ) {
     itineraries {
       legs {
@@ -97,7 +96,7 @@ function Timetables() {
         </button>
       </div>
       <AddressDisplay addresses={addresses} />
-      <RouteDisplay addressCoordinates={addressCoordinates[0]} />
+      <RouteDisplay addressCoordinates={addressCoordinates} />
     </div>
   );
 }
@@ -122,9 +121,9 @@ function AddressDisplay(props) {
 
 function RouteDisplay(props) {
   const { loading, error, data } = useQuery(ADDRESS_TO_EFICODE, {
-    variables: props.addressCoordinates ,
+    variables: props.addressCoordinates[0] ,
   });
-  console.log(props.addressCoordinates)
+  console.log(props.addressCoordinates[0])
   if (loading) return <p>Loading ...</p>;
   if (error) return (
     <div>
@@ -133,7 +132,14 @@ function RouteDisplay(props) {
     );
   return (
   <div>
-    {data}
+    {data.plan.itineraries.slice(0).map((slice) => <div key={slice.legs[0].endTime}>
+        {data.plan.itineraries[0].legs.map((leg) => <div key={leg.endTime}>
+          {new Date(leg.startTime).toLocaleTimeString()}{' ' + leg.mode + ' '}{(leg.distance/1000).toFixed(2) + 'km '}{new Date(leg.endTime).toLocaleTimeString()}<br></br>
+        </div>)} 
+        <br></br>
+        <br></br>
+      </div>
+    )}
   </div>
   )
 }
