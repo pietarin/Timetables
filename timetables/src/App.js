@@ -101,7 +101,7 @@ function Timetables() {
 
 function AddressDisplay(props) {
   function handleClick(event) {
-    props.onClick(event.target.setDisplay);
+    props.setDisplay(true)
   }
   return (
     <div>
