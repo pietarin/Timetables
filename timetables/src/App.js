@@ -95,13 +95,6 @@ function Timetables() {
     setSearch(e.target.value);
   }
 
-  function handleClick(newValue) {
-    setDisplay(!display);
-    console.log(display)
-	}
-
-  console.log(addressCoordinates);
-
   return (
     <div className="App">
       <h1 className="App-header">
@@ -118,7 +111,7 @@ function Timetables() {
 }
 
 function AddressDisplay(props) {
-  function handleClick(event) {
+  function handleClick() {
     props.setDisplay(true)
   }
   return (
@@ -158,7 +151,7 @@ function RouteDisplay(props) {
     <button onClick={() => setToFromEficode(!toFromEficode)}> 
       {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
     </button>
-    {data.plan.itineraries.slice(0).map((slice, index) => <div key={slice.legs[0].endTime}>
+    {data.plan.itineraries.slice(0).map((slice, index) => <div key={slice.legs[index].endTime}>
         <h4>Reittivaihtoehdot nopeimmasta hitaimpaan: </h4>{index + 1 + '.'}
         {data.plan.itineraries[index].legs.map((leg) => <div key={leg.endTime}>
           <br></br>
