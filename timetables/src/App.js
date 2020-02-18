@@ -40,10 +40,10 @@ query RouteToEficode( $lat: Float!, $lon: Float!){
 `
 
 const EFICODE_TO_ADDRESS = gql`
-query RouteToAddress( $lat: Float, $lon: Float){
+query RouteToAddress( $lat: Float!, $lon: Float!){
   plan(
-    from: "lat:60.169390, lon:24.925750"
-    to: {lat: $latitude, lon: $longitude}
+    from: {lat:60.169390, lon:24.925750}
+    to: {lat: $lat, lon: $lon}
     numItineraries: 3
   ) {
     itineraries {
@@ -78,6 +78,7 @@ function Timetables() {
   const [addressCoordinates, setAddressCoordinates] = useState([]);
   const [search, setSearch] = useState("");
   const [display, setDisplay] = useState(false);
+  const [clickedLink, setClickedLink] = useState(0);
 
   document.title = 'Timetables';
   
@@ -105,26 +106,25 @@ function Timetables() {
       <div>
         <RouteBars handleSubmit={handleSubmit} handleSearchChange={handleSearchChange} />
       </div>
-      {display ? <RouteDisplay addressCoordinates={addressCoordinates} /> : <AddressDisplay setDisplay={setDisplay} addresses={addresses} /> }
+      {display ? <RouteDisplay addressCoordinates={addressCoordinates} clickedLink={clickedLink} /> : <AddressDisplay setDisplay={setDisplay} addresses={addresses} setClickedLink={setClickedLink} /> }
     </div>
   );
 }
 
 function AddressDisplay(props) {
-  function handleClick() {
+  function handleClick(index){
+    props.setClickedLink(index);
     props.setDisplay(true)
   }
   return (
     <div>
-      {props.addresses.map((address) => <div key={address.properties.label}>
-      <a
-          className="App-link"
-          href="#"
-          rel="noopener noreferrer"
-          onClick={handleClick}
-        >
+      {props.addresses.map((address, index) => <div key={address.properties.label}>
+      <br></br>
+      <button id={index} onClick={(() => {
+        handleClick(index);
+      })}> 
           {address.properties.label}
-        </a>
+      </button>
       </div>
       )}
     </div>
@@ -132,11 +132,11 @@ function AddressDisplay(props) {
 }
 
 function RouteDisplay(props) {
-  const { loading, error, data } = useQuery(ADDRESS_TO_EFICODE, {
-    variables: props.addressCoordinates[0] ,
-  });
   const [toFromEficode, setToFromEficode] = useState(true);
-  console.log(props.addressCoordinates[0])
+  const { loading, error, data } = useQuery((toFromEficode) ? ADDRESS_TO_EFICODE :  EFICODE_TO_ADDRESS, {
+    variables: props.addressCoordinates[props.clickedLink] ,
+  });
+  console.log(props.addressCoordinates[props.clickedLink])
   if (loading) return <p>Haetaan reittivaihtoehtoja Digitransitin APIsta!</p>;
   if (error) return (
     <div>
@@ -151,7 +151,7 @@ function RouteDisplay(props) {
     <button onClick={() => setToFromEficode(!toFromEficode)}> 
       {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
     </button>
-    {data.plan.itineraries.slice(0).map((slice, index) => <div key={slice.legs[index].endTime}>
+    {data.plan.itineraries.map((itinerary, index) => <div key={itinerary.legs[index].endTime}>
         <h4>Reittivaihtoehdot nopeimmasta hitaimpaan: </h4>{index + 1 + '.'}
         {data.plan.itineraries[index].legs.map((leg) => <div key={leg.endTime}>
           <br></br>
@@ -181,10 +181,7 @@ function RouteBars(props) {
       <form onSubmit={props.handleSubmit}>
         <div>
           <label>Eficoden toimisto:</label>
-          <br></br>
-          <h3>
-          Pohjoinen Rautatienkatu 25
-          </h3>
+          <h3>Pohjoinen Rautatienkatu 25</h3>
           <label htmlFor="routeToFrom">Hae aikatauluja:</label>
           <br></br>
           <input id="routeToFrom" type="text" required name="routeToFrom"
