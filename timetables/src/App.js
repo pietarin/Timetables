@@ -14,6 +14,12 @@ query RouteToEficode( $lat: Float!, $lon: Float!){
   ) {
     itineraries {
       legs {
+        from {
+          name
+        }
+        to {
+          name
+        }
         startTime
         endTime
         mode
@@ -39,6 +45,12 @@ query RouteToAddress( $lat: Float, $lon: Float){
   ) {
     itineraries {
       legs {
+        from {
+          name
+        }
+        to {
+          name
+        }
         startTime
         endTime
         mode
@@ -140,9 +152,9 @@ function RouteDisplay(props) {
     <button onClick={() => setToFromEficode(!toFromEficode)}> 
       {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
     </button>
-    {data.plan.itineraries.slice(0).map((slice) => <div key={slice.legs[0].endTime}>
-        {data.plan.itineraries[0].legs.map((leg) => <div key={leg.endTime}>
-          {new Date(leg.startTime).toLocaleTimeString()}{' ' + leg.mode + ' '}{(leg.distance/1000).toFixed(2) + 'km '}{new Date(leg.endTime).toLocaleTimeString()}<br></br>
+    {data.plan.itineraries.slice(0).map((slice, index) => <div key={slice.legs[0].endTime}>
+        {data.plan.itineraries[index].legs.map((leg) => <div key={leg.endTime}>
+          {leg.from.name + ' '}{new Date(leg.startTime).toLocaleTimeString()}{' ' + leg.mode + ' '}{(leg.distance/1000).toFixed(2) + 'km '}{new Date(leg.endTime).toLocaleTimeString()}{' ' + leg.to.name}<br></br>
         </div>)} 
         <br></br>
         <br></br>
@@ -165,7 +177,7 @@ function RouteBars(props) {
           <label htmlFor="routeToFrom">Hae aikatauluja:</label>
           <br></br>
           <input id="routeToFrom" type="text" required name="routeToFrom"
-            size="25" placeholder="Osoite" onChange={props.handleSearchChange} />
+            size="25" placeholder="Kadun nimi" onChange={props.handleSearchChange} />
           <input type="submit" value="Hae aikatauluja" />
         </div>
       </form>
