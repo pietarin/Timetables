@@ -144,7 +144,7 @@ function RouteDisplay(props) {
   });
   const [toFromEficode, setToFromEficode] = useState(true);
   console.log(props.addressCoordinates[0])
-  if (loading) return <p>Loading ...</p>;
+  if (loading) return <p>Haetaan reittivaihtoehtoja Digitransitin APIsta!</p>;
   if (error) return (
     <div>
       {console.log(error)}
@@ -159,17 +159,18 @@ function RouteDisplay(props) {
       {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
     </button>
     {data.plan.itineraries.slice(0).map((slice, index) => <div key={slice.legs[0].endTime}>
-        <h4>Reittivaihtoehdot nopeimmasta hitaimpaan: </h4>{index + 1}
+        <h4>Reittivaihtoehdot nopeimmasta hitaimpaan: </h4>{index + 1 + '.'}
         {data.plan.itineraries[index].legs.map((leg) => <div key={leg.endTime}>
           <br></br>
           {'Pätkä alkaa kohteesta: ' + leg.from.name}
           <br></br>
           {(leg.transitLeg) ? 'Linjan nimi: ' + leg.route.longName : 'Tämä pätkä kannattaa kävellä' }
           <br></br>
-          {new Date(leg.startTime).toLocaleTimeString() + ' '}
+          {'Pätkä alkaa: ' + new Date(leg.startTime).toLocaleTimeString() + ' '}
           {leg.mode + ' '}
           {(leg.distance/1000).toFixed(2) + 'km '}
-          {new Date(leg.endTime).toLocaleTimeString() + ' '}
+          <br></br>
+          {'Pätkä päättyy: ' + new Date(leg.endTime).toLocaleTimeString() + ' '}
           {leg.to.name}
         </div>)} 
         <h4>Olet perillä!</h4>
