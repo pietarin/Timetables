@@ -1,7 +1,9 @@
 FROM node:12
 
-WORKDIR /app
+WORKDIR /
 EXPOSE 3000
 COPY . .
 RUN yarn install
-CMD [ "yarn", "start" ]
+RUN yarn build
+RUN npm install -g serve
+CMD ["serve", "-s", "build"]

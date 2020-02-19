@@ -85,7 +85,7 @@ function Timetables() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.get(`http://api.digitransit.fi/geocoding/v1/search?text=${search}&boundary.circle.lat=60.169390&boundary.circle.lon=24.925750&boundary.circle.radius=100`)
+    axios.get(`https://api.digitransit.fi/geocoding/v1/search?text=${search}&boundary.circle.lat=60.169390&boundary.circle.lon=24.925750&boundary.circle.radius=100`)
       .then(res => {
         setAddressCoordinates(res.data.features.map((feature) => ({lat: feature.geometry.coordinates[1], lon: feature.geometry.coordinates[0]})));
         setAddresses(res.data.features);
@@ -152,7 +152,7 @@ function RouteDisplay(props) {
       {toFromEficode ? 'Valitsemasi kohde -> Eficode' : 'Eficode -> valitsemasi kohde'} 
     </button>
     {data.plan.itineraries.map((itinerary, index) => <div key={itinerary.legs[index].endTime}>
-        <h4>Reittivaihtoehdot nopeimmasta hitaimpaan: </h4>{index + 1 + '.'}
+        <h5>Reittivaihtoehdot nopeimmasta hitaimpaan: </h5>{index + 1 + '.'}
         {data.plan.itineraries[index].legs.map((leg) => <div key={leg.endTime}>
           <br></br>
           {'Pätkä alkaa kohteesta: ' + leg.from.name}
@@ -180,8 +180,8 @@ function RouteBars(props) {
     <div>
       <form onSubmit={props.handleSubmit}>
         <div>
-          <label>Eficoden toimisto:</label>
-          <h3>Pohjoinen Rautatienkatu 25</h3>
+          <h5>Eficoden toimisto: Pohjoinen Rautatienkatu 25</h5>
+          <br></br>
           <label htmlFor="routeToFrom">Hae aikatauluja:</label>
           <br></br>
           <input id="routeToFrom" type="text" required name="routeToFrom"
