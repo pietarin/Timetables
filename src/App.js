@@ -101,7 +101,7 @@ function Timetables() {
       <h1 className="App-header">
         Tarkasta julkisen liikenteen aikataulut toimistolle
         <br></br>
-        tai toimstolta valitseemasi osoitteeseen!
+        tai toimistolta valitsemaasi osoitteeseen!
       </h1>
       <div>
         <RouteBars handleSubmit={handleSubmit} handleSearchChange={handleSearchChange} />

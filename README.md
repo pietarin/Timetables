@@ -1,7 +1,7 @@
-## Timetables
+# Timetables
 Info screen, which displays HSL public transportation timetables between a location of your choice and Pohjoinen rautatienkatu 25.
 
-# To run the app, visit https://whispering-dawn-76322.herokuapp.com/.
+## To run the app, visit https://whispering-dawn-76322.herokuapp.com/.
 
 The app fetches the coordinates of whatever address you type into the searchbar after you hit "Hae aikatauluja".
 The coordinates are fetched from the digitransit Geocoding API with an axios GET-request.
