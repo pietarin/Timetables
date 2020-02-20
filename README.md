@@ -7,6 +7,7 @@ The app fetches the coordinates of whatever address you type into the searchbar 
 The coordinates are fetched from the digitransit Geocoding API with an axios GET-request.
 
 You are then provided with a list of 10 addresses from which you can pick whichever one best suits your needs.
+Do note, that I limited the distance the addresses can be from Pohjoinen Rautatienkatu 25. They have to be within a 100km radius.
 When you click one of the addresses, the app renders the 3 fastest public transportation routes for your convenience.
 The routes are fetched from digitransit Routing API via GraphQL queries.
 
